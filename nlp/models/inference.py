@@ -3,7 +3,6 @@ import re
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import pandas as pd
-from Project.data import process_data
 import yaml
 
 
@@ -13,7 +12,7 @@ model_path = "./qwen-7b"
 # Load tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(
-    model_path,
+    model_path, 
     device_map="auto",
     torch_dtype=torch.float16,
     trust_remote_code=True
@@ -23,6 +22,7 @@ device = "mps"
 
 
 def parse_description(description):
+    print("PARSING DESCRIPTION")
     """
     Extracts balance sheet and income statement using regex.
     Returns two strings: balance_sheet_text, income_statement_text
@@ -45,6 +45,7 @@ def parse_description(description):
 
 
 def parse_table_string(table_str):
+    print("PARSING TABLE STRING")
     """
     Converts pipe-separated table into key-value format
     """
@@ -65,13 +66,15 @@ def parse_table_string(table_str):
 
 
 def build_prompt(balance_sheet_text, income_statement_text):
-    with open("nlp/config/prompts.yaml", "r") as file:
+    print("BUILDING PROMPTS NOW ")
+    with open("config/prompts.yaml", "r") as file:
         prompts = yaml.safe_load(file)
         prompt = prompts['prompt_1']
     return prompt
 
 
 def run_inference(prompt):
+    print("RUNNING INFERENCE")
     inputs = tokenizer(prompt, return_tensors="pt").to(device)
 
     with torch.no_grad():
@@ -87,6 +90,7 @@ def run_inference(prompt):
 
 
 def parse_response(output):
+    print("PARSING RESPONSE")
     match = re.search(r'\{(?:[^{}]|(?R))*\}', output, re.DOTALL)
     if match:
         json_str = match.group(0)
