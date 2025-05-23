@@ -1,0 +1,57 @@
+prompt_1:
+  - "Based on the following financial statements, assess whether EPS will increase or decrease in the next year:
+
+    ### Balance Sheet:
+    {balance_sheet_text}
+
+    ### Income Statement:
+    {income_statement_text}
+
+    Solve this problem step by step:
+
+    1. Analyze the Balance Sheet:
+       1A. Extract balance sheet data including Year-over-Year percentage changes for each item.
+       1B. Analyze the balance sheet data for key insights and trends.
+
+    2. Perform a Cash Flow Analysis:
+       2A. Analyze liquidity and cash movement based on the balance sheet and income statement trends.
+
+    3. Analyze the Income Statement:
+       3A. Extract income statement data including Year-over-Year percentage changes for each item.
+       3B. Analyze the income statement data for key insights and trends.
+
+    4. Financial Ratio Analysis:
+       4A. Using the balance sheet and income statement data, calculate key financial ratios for the two most recent periods.
+       4B. Analyze the calculated financial ratios for key insights and trends.
+
+    5. Final Summary and Future Outlook:
+       5A. Based on the balance sheet, income statement, and financial ratio analysis, produce a comprehensive assessment of the company's financial health and future profitability.
+
+    6. EPS Prediction for Next Year:
+       6A. Assess whether EPS is likely to increase or decrease based on findings.
+       6B. Return the results:
+          - Direction of EPS Change: Must be a one-word response of Increase or Decrease
+          - Magnitude of Change
+          - Certainty of Assessment
+          - Reason"
+
+prompt_2:
+  - "Based on the following financial statements, assess whether EPS will increase or decrease in the next year:
+
+    ### Balance Sheet:
+    {balance_sheet_text}
+
+    ### Income Statement:
+    {income_statement_text}
+
+    Think step by step and explain your analysis. Then, at the end, return the results in the following JSON format EXACTLY:
+
+    {
+      \"Direction of EPS Change\": \"Increase or Decrease\",
+      \"Magnitude of Change\": \"Approximate percentage change (e.g., 5%)\",
+      \"Certainty of Assessment\": \"High/Medium/Low\",
+      \"Reason\": \"Brief explanation of why\"
+    }
+
+    Do NOT include any additional text after the JSON."
+         
