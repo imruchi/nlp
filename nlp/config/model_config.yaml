@@ -1,0 +1,19 @@
+model_name: "Qwen/Qwen2-7B-Instruct"
+inference_config:
+  device: "cuda"
+  max_new_tokens: 512
+  temperature: 0.7
+  top_p: 0.9
+  top_k: 40
+  repetition_penalty: 1.18
+  do_sample: True
+  num_beams: 1
+
+
+
+
+
+
+
+
+

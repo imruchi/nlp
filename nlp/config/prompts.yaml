@@ -1,11 +1,7 @@
 prompt_1:
   - "Based on the following financial statements, assess whether EPS will increase or decrease in the next year:
 
-    ### Balance Sheet:
-    {balance_sheet_text}
-
-    ### Income Statement:
-    {income_statement_text}
+    {balance_income_sheet}
 
     Solve this problem step by step:
 
