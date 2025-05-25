@@ -1,0 +1,3 @@
+prompt_path: "config/prompts.yaml"
+data_path: "data/process_data.json"
+cache_directory: "/scratch/wnn7240/JNK/NLPF/cached_models_new1"
