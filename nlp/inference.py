@@ -21,7 +21,7 @@ logging.getLogger("transformers").setLevel(logging.DEBUG)
 logging.getLogger("huggingface_hub.file_download").setLevel(logging.INFO)
 
 try:
-    login(token="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")
+    login(token="")
     print("✓ Successfully logged into HuggingFace!")
 except:
     print("Login Failed !")
