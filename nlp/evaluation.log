@@ -1,0 +1,383 @@
+[2025-06-02 16:33:21] INFO: Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-02 16:33:21] INFO: Starting JSON repair process...
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=1510, year=1976
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=1608, year=1973
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=2062, year=1972
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=2089, year=1978
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=2110, year=1973
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=2328, year=1977
+[2025-06-02 16:33:21] WARNING: No JSON found for company_id=2401, year=1976
+[2025-06-02 16:33:21] INFO: Total JSONs fixed: 836
+[2025-06-02 16:33:21] INFO: Starting Zero-Shot Classification...
+[2025-06-02 16:33:28] WARNING: Skipping row 31: No text to classify.
+[2025-06-02 16:33:32] WARNING: Skipping row 61: No text to classify.
+[2025-06-02 16:33:38] WARNING: Skipping row 127: No text to classify.
+[2025-06-02 16:33:38] WARNING: Skipping row 137: No text to classify.
+[2025-06-02 16:33:40] WARNING: Skipping row 157: No text to classify.
+[2025-06-02 16:33:45] WARNING: Skipping row 223: No text to classify.
+[2025-06-02 16:33:48] WARNING: Skipping row 267: No text to classify.
+[2025-06-02 16:33:53] WARNING: Skipping row 325: No text to classify.
+[2025-06-02 16:33:58] WARNING: Skipping row 388: No text to classify.
+[2025-06-02 16:34:00] WARNING: Skipping row 421: No text to classify.
+[2025-06-02 16:34:05] WARNING: Skipping row 484: No text to classify.
+[2025-06-02 16:34:06] WARNING: Skipping row 498: No text to classify.
+[2025-06-02 16:34:06] WARNING: Skipping row 500: No text to classify.
+[2025-06-02 16:34:09] WARNING: Skipping row 540: No text to classify.
+[2025-06-02 16:34:10] WARNING: Skipping row 564: No text to classify.
+[2025-06-02 16:34:11] WARNING: Skipping row 578: No text to classify.
+[2025-06-02 16:34:11] WARNING: Skipping row 583: No text to classify.
+[2025-06-02 16:34:12] WARNING: Skipping row 600: No text to classify.
+[2025-06-02 16:34:15] WARNING: Skipping row 636: No text to classify.
+[2025-06-02 16:34:19] WARNING: Skipping row 679: No text to classify.
+[2025-06-02 16:34:21] WARNING: Skipping row 710: No text to classify.
+[2025-06-02 16:34:21] WARNING: Skipping row 711: No text to classify.
+[2025-06-02 16:34:22] WARNING: Skipping row 720: No text to classify.
+[2025-06-02 16:34:23] WARNING: Skipping row 744: No text to classify.
+[2025-06-02 16:34:26] WARNING: Skipping row 776: No text to classify.
+[2025-06-02 16:34:28] WARNING: Skipping row 806: No text to classify.
+[2025-06-02 16:34:31] INFO: Zero-shot classification complete for 836 rows.
+[2025-06-02 16:34:31] INFO: Filtered out 52 rows with invalid predictions or neutral labels.
+[2025-06-02 16:34:31] INFO: Label distribution:
+[2025-06-02 16:34:31] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-02 16:34:31] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-02 16:34:31] INFO: ✅ Final F1 Score (label='increase'): 0.6151
+[2025-06-02 16:37:34] INFO: Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-02 16:37:35] INFO: Starting JSON repair process...
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=1510, year=1976
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=1608, year=1973
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=2062, year=1972
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=2089, year=1978
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=2110, year=1973
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=2328, year=1977
+[2025-06-02 16:37:35] WARNING: No JSON found for company_id=2401, year=1976
+[2025-06-02 16:37:35] INFO: Total JSONs fixed: 836
+[2025-06-02 16:37:35] INFO: Starting Zero-Shot Classification...
+[2025-06-02 16:37:42] WARNING: Skipping row 31: No text to classify.
+[2025-06-02 16:37:45] WARNING: Skipping row 61: No text to classify.
+[2025-06-02 16:37:51] WARNING: Skipping row 127: No text to classify.
+[2025-06-02 16:37:51] WARNING: Skipping row 137: No text to classify.
+[2025-06-02 16:37:53] WARNING: Skipping row 157: No text to classify.
+[2025-06-02 16:37:58] WARNING: Skipping row 223: No text to classify.
+[2025-06-02 16:38:02] WARNING: Skipping row 267: No text to classify.
+[2025-06-02 16:38:06] WARNING: Skipping row 325: No text to classify.
+[2025-06-02 16:38:11] WARNING: Skipping row 388: No text to classify.
+[2025-06-02 16:38:14] WARNING: Skipping row 421: No text to classify.
+[2025-06-02 16:38:19] WARNING: Skipping row 484: No text to classify.
+[2025-06-02 16:38:20] WARNING: Skipping row 498: No text to classify.
+[2025-06-02 16:38:20] WARNING: Skipping row 500: No text to classify.
+[2025-06-02 16:38:23] WARNING: Skipping row 540: No text to classify.
+[2025-06-02 16:38:24] WARNING: Skipping row 564: No text to classify.
+[2025-06-02 16:38:25] WARNING: Skipping row 578: No text to classify.
+[2025-06-02 16:38:25] WARNING: Skipping row 583: No text to classify.
+[2025-06-02 16:38:26] WARNING: Skipping row 600: No text to classify.
+[2025-06-02 16:38:30] WARNING: Skipping row 636: No text to classify.
+[2025-06-02 16:38:33] WARNING: Skipping row 679: No text to classify.
+[2025-06-02 16:38:35] WARNING: Skipping row 710: No text to classify.
+[2025-06-02 16:38:35] WARNING: Skipping row 711: No text to classify.
+[2025-06-02 16:38:36] WARNING: Skipping row 720: No text to classify.
+[2025-06-02 16:38:37] WARNING: Skipping row 744: No text to classify.
+[2025-06-02 16:38:41] WARNING: Skipping row 776: No text to classify.
+[2025-06-02 16:38:43] WARNING: Skipping row 806: No text to classify.
+[2025-06-02 16:38:45] INFO: Zero-shot classification complete for 836 rows.
+[2025-06-02 16:38:45] INFO: Filtered out 52 rows with invalid predictions or neutral labels.
+[2025-06-02 16:38:45] INFO: Label distribution:
+[2025-06-02 16:38:45] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-02 16:38:45] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-02 16:38:46] INFO: ✅ Final F1 Score (label='increase'): 0.6151
+[2025-06-02 16:46:18] INFO: Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-02 16:46:18] INFO: Starting JSON repair process...
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=1510, year=1976
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=1608, year=1973
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=2062, year=1972
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=2089, year=1978
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=2110, year=1973
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=2328, year=1977
+[2025-06-02 16:46:18] WARNING: No JSON found for company_id=2401, year=1976
+[2025-06-02 16:46:18] INFO: Total JSONs fixed: 836
+[2025-06-02 16:46:18] INFO: Starting Zero-Shot Classification...
+[2025-06-02 16:46:25] WARNING: Skipping row 31: No text to classify.
+[2025-06-02 16:46:29] WARNING: Skipping row 61: No text to classify.
+[2025-06-02 16:46:35] WARNING: Skipping row 127: No text to classify.
+[2025-06-02 16:46:35] WARNING: Skipping row 137: No text to classify.
+[2025-06-02 16:46:37] WARNING: Skipping row 157: No text to classify.
+[2025-06-02 16:46:42] WARNING: Skipping row 223: No text to classify.
+[2025-06-02 16:46:45] WARNING: Skipping row 267: No text to classify.
+[2025-06-02 16:46:50] WARNING: Skipping row 325: No text to classify.
+[2025-06-02 16:46:55] WARNING: Skipping row 388: No text to classify.
+[2025-06-02 16:46:57] WARNING: Skipping row 421: No text to classify.
+[2025-06-02 16:47:03] WARNING: Skipping row 484: No text to classify.
+[2025-06-02 16:47:04] WARNING: Skipping row 498: No text to classify.
+[2025-06-02 16:47:04] WARNING: Skipping row 500: No text to classify.
+[2025-06-02 16:47:06] WARNING: Skipping row 540: No text to classify.
+[2025-06-02 16:47:08] WARNING: Skipping row 564: No text to classify.
+[2025-06-02 16:47:09] WARNING: Skipping row 578: No text to classify.
+[2025-06-02 16:47:09] WARNING: Skipping row 583: No text to classify.
+[2025-06-02 16:47:10] WARNING: Skipping row 600: No text to classify.
+[2025-06-02 16:47:13] WARNING: Skipping row 636: No text to classify.
+[2025-06-02 16:47:16] WARNING: Skipping row 679: No text to classify.
+[2025-06-02 16:47:19] WARNING: Skipping row 710: No text to classify.
+[2025-06-02 16:47:19] WARNING: Skipping row 711: No text to classify.
+[2025-06-02 16:47:19] WARNING: Skipping row 720: No text to classify.
+[2025-06-02 16:47:21] WARNING: Skipping row 744: No text to classify.
+[2025-06-02 16:47:24] WARNING: Skipping row 776: No text to classify.
+[2025-06-02 16:47:26] WARNING: Skipping row 806: No text to classify.
+[2025-06-02 16:47:28] INFO: Zero-shot classification complete for 836 rows.
+[2025-06-02 16:47:28] INFO: Filtered out 52 rows with invalid predictions or neutral labels.
+[2025-06-02 16:47:28] INFO: Label distribution:
+[2025-06-02 16:47:28] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-02 16:47:28] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-02 16:47:28] INFO: ✅ Final F1 Score (label='increase'): 0.6151
+[2025-06-02 16:54:18] INFO: Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-02 16:54:18] INFO: Starting JSON repair process...
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=1510, year=1976
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=1608, year=1973
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=2062, year=1972
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=2089, year=1978
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=2110, year=1973
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=2328, year=1977
+[2025-06-02 16:54:18] WARNING: No JSON found for company_id=2401, year=1976
+[2025-06-02 16:54:18] INFO: Total JSONs fixed: 836
+[2025-06-02 16:54:18] INFO: Starting Zero-Shot Classification...
+[2025-06-02 16:54:26] WARNING: Skipping row 31: No text to classify.
+[2025-06-02 16:54:29] WARNING: Skipping row 61: No text to classify.
+[2025-06-02 16:54:35] WARNING: Skipping row 127: No text to classify.
+[2025-06-02 16:54:36] WARNING: Skipping row 137: No text to classify.
+[2025-06-02 16:54:37] WARNING: Skipping row 157: No text to classify.
+[2025-06-02 16:54:42] WARNING: Skipping row 223: No text to classify.
+[2025-06-02 16:54:46] WARNING: Skipping row 267: No text to classify.
+[2025-06-02 16:54:50] WARNING: Skipping row 325: No text to classify.
+[2025-06-02 16:54:55] WARNING: Skipping row 388: No text to classify.
+[2025-06-02 16:54:57] WARNING: Skipping row 421: No text to classify.
+[2025-06-02 16:55:03] WARNING: Skipping row 484: No text to classify.
+[2025-06-02 16:55:04] WARNING: Skipping row 498: No text to classify.
+[2025-06-02 16:55:04] WARNING: Skipping row 500: No text to classify.
+[2025-06-02 16:55:06] WARNING: Skipping row 540: No text to classify.
+[2025-06-02 16:55:08] WARNING: Skipping row 564: No text to classify.
+[2025-06-02 16:55:09] WARNING: Skipping row 578: No text to classify.
+[2025-06-02 16:55:09] WARNING: Skipping row 583: No text to classify.
+[2025-06-02 16:55:10] WARNING: Skipping row 600: No text to classify.
+[2025-06-02 16:55:13] WARNING: Skipping row 636: No text to classify.
+[2025-06-02 16:55:16] WARNING: Skipping row 679: No text to classify.
+[2025-06-02 16:55:19] WARNING: Skipping row 710: No text to classify.
+[2025-06-02 16:55:19] WARNING: Skipping row 711: No text to classify.
+[2025-06-02 16:55:19] WARNING: Skipping row 720: No text to classify.
+[2025-06-02 16:55:21] WARNING: Skipping row 744: No text to classify.
+[2025-06-02 16:55:24] WARNING: Skipping row 776: No text to classify.
+[2025-06-02 16:55:26] WARNING: Skipping row 806: No text to classify.
+[2025-06-02 16:55:28] INFO: Zero-shot classification complete for 836 rows.
+[2025-06-02 16:55:28] INFO: ⚠️ Skipped 26 rows due to missing classification text.
+[2025-06-02 16:55:28] INFO: Filtered out 52 rows with invalid predictions or neutral labels.
+[2025-06-02 16:55:28] INFO: Label distribution:
+[2025-06-02 16:55:28] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-02 16:55:28] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-02 16:55:28] INFO: ✅ Final F1 Score (label='increase'): 0.6151
+[2025-06-03 15:23:40] INFO: 🏁 Starting Evaluation Pipeline...
+[2025-06-03 15:23:40] INFO: 📥 Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-03 15:23:40] INFO: 📊 Loaded 1800 rows.
+[2025-06-03 15:23:40] INFO: 🔧 Starting JSON repair process...
+[2025-06-03 15:23:40] INFO: ⏳ Filtering complete. Total rows needing repair: 843
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=1510, year=1976
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=1608, year=1973
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=2062, year=1972
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=2089, year=1978
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=2110, year=1973
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=2328, year=1977
+[2025-06-03 15:23:40] WARNING: ⚠️ No JSON found for company_id=2401, year=1976
+[2025-06-03 15:23:40] INFO: ✅ Total JSONs fixed: 836
+[2025-06-03 15:23:40] INFO: 🚀 Starting Zero-Shot Classification...
+[2025-06-03 15:23:51] WARNING: ⛔ Skipping row 31: No text to classify.
+[2025-06-03 15:23:56] WARNING: ⛔ Skipping row 61: No text to classify.
+[2025-06-03 15:24:04] WARNING: ⛔ Skipping row 127: No text to classify.
+[2025-06-03 15:24:05] WARNING: ⛔ Skipping row 137: No text to classify.
+[2025-06-03 15:24:08] WARNING: ⛔ Skipping row 157: No text to classify.
+[2025-06-03 15:24:14] WARNING: ⛔ Skipping row 223: No text to classify.
+[2025-06-03 15:24:19] WARNING: ⛔ Skipping row 267: No text to classify.
+[2025-06-03 15:24:25] WARNING: ⛔ Skipping row 325: No text to classify.
+[2025-06-03 15:24:31] WARNING: ⛔ Skipping row 388: No text to classify.
+[2025-06-03 15:24:34] WARNING: ⛔ Skipping row 421: No text to classify.
+[2025-06-03 15:24:41] WARNING: ⛔ Skipping row 484: No text to classify.
+[2025-06-03 15:24:43] WARNING: ⛔ Skipping row 498: No text to classify.
+[2025-06-03 15:24:43] WARNING: ⛔ Skipping row 500: No text to classify.
+[2025-06-03 15:24:46] WARNING: ⛔ Skipping row 540: No text to classify.
+[2025-06-03 15:24:48] WARNING: ⛔ Skipping row 564: No text to classify.
+[2025-06-03 15:24:49] WARNING: ⛔ Skipping row 578: No text to classify.
+[2025-06-03 15:24:50] WARNING: ⛔ Skipping row 583: No text to classify.
+[2025-06-03 15:24:51] WARNING: ⛔ Skipping row 600: No text to classify.
+[2025-06-03 15:24:55] WARNING: ⛔ Skipping row 636: No text to classify.
+[2025-06-03 15:24:59] WARNING: ⛔ Skipping row 679: No text to classify.
+[2025-06-03 15:25:03] WARNING: ⛔ Skipping row 710: No text to classify.
+[2025-06-03 15:25:03] WARNING: ⛔ Skipping row 711: No text to classify.
+[2025-06-03 15:25:03] WARNING: ⛔ Skipping row 720: No text to classify.
+[2025-06-03 15:25:05] WARNING: ⛔ Skipping row 744: No text to classify.
+[2025-06-03 15:25:09] WARNING: ⛔ Skipping row 776: No text to classify.
+[2025-06-03 15:25:12] WARNING: ⛔ Skipping row 806: No text to classify.
+[2025-06-03 15:25:15] INFO: 🎯 Classification complete for 836 rows.
+[2025-06-03 15:25:15] INFO: ⚠️ Skipped 26 rows due to missing classification text.
+[2025-06-03 15:25:15] INFO: 🧩 Merging predictions into original dataframe...
+[2025-06-03 15:25:15] INFO: 🧹 Filtering invalid and neutral rows... Total before: 1800
+[2025-06-03 15:25:15] INFO: ✅ Remaining rows after filtering: 1748 (Removed: 52)
+[2025-06-03 15:25:15] INFO: 📈 Label distribution:
+[2025-06-03 15:25:15] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-03 15:25:15] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-03 15:25:15] INFO: 📦 Saved 10 negative (misclassified) samples to positive_samples.json
+[2025-06-03 15:25:15] INFO: 🎯 Final F1 Score (label='increase'): 0.6151
+[2025-06-03 15:25:15] INFO: ✅ Evaluation Pipeline Complete.
+[2025-06-03 15:34:32] INFO: 🏁 Starting Evaluation Pipeline...
+[2025-06-03 15:34:32] INFO: 📥 Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-03 15:34:32] INFO: 📊 Loaded 1800 rows.
+[2025-06-03 15:34:32] INFO: 🔧 Starting JSON repair process...
+[2025-06-03 15:34:32] INFO: ⏳ Filtering complete. Total rows needing repair: 843
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=1510, year=1976
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=1608, year=1973
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=2062, year=1972
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=2089, year=1978
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=2110, year=1973
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=2328, year=1977
+[2025-06-03 15:34:32] WARNING: ⚠️ No JSON found for company_id=2401, year=1976
+[2025-06-03 15:34:32] INFO: ✅ Total JSONs fixed: 836
+[2025-06-03 15:34:32] INFO: 🚀 Starting Zero-Shot Classification...
+[2025-06-03 15:34:42] WARNING: ⛔ Skipping row 31: No text to classify.
+[2025-06-03 15:34:46] WARNING: ⛔ Skipping row 61: No text to classify.
+[2025-06-03 15:34:55] WARNING: ⛔ Skipping row 127: No text to classify.
+[2025-06-03 15:34:56] WARNING: ⛔ Skipping row 137: No text to classify.
+[2025-06-03 15:34:58] WARNING: ⛔ Skipping row 157: No text to classify.
+[2025-06-03 15:35:05] WARNING: ⛔ Skipping row 223: No text to classify.
+[2025-06-03 15:35:10] WARNING: ⛔ Skipping row 267: No text to classify.
+[2025-06-03 15:35:16] WARNING: ⛔ Skipping row 325: No text to classify.
+[2025-06-03 15:35:22] WARNING: ⛔ Skipping row 388: No text to classify.
+[2025-06-03 15:35:25] WARNING: ⛔ Skipping row 421: No text to classify.
+[2025-06-03 15:35:32] WARNING: ⛔ Skipping row 484: No text to classify.
+[2025-06-03 15:35:34] WARNING: ⛔ Skipping row 498: No text to classify.
+[2025-06-03 15:35:34] WARNING: ⛔ Skipping row 500: No text to classify.
+[2025-06-03 15:35:37] WARNING: ⛔ Skipping row 540: No text to classify.
+[2025-06-03 15:35:39] WARNING: ⛔ Skipping row 564: No text to classify.
+[2025-06-03 15:35:41] WARNING: ⛔ Skipping row 578: No text to classify.
+[2025-06-03 15:35:41] WARNING: ⛔ Skipping row 583: No text to classify.
+[2025-06-03 15:35:42] WARNING: ⛔ Skipping row 600: No text to classify.
+[2025-06-03 15:35:46] WARNING: ⛔ Skipping row 636: No text to classify.
+[2025-06-03 15:35:50] WARNING: ⛔ Skipping row 679: No text to classify.
+[2025-06-03 15:35:54] WARNING: ⛔ Skipping row 710: No text to classify.
+[2025-06-03 15:35:54] WARNING: ⛔ Skipping row 711: No text to classify.
+[2025-06-03 15:35:54] WARNING: ⛔ Skipping row 720: No text to classify.
+[2025-06-03 15:35:56] WARNING: ⛔ Skipping row 744: No text to classify.
+[2025-06-03 15:36:00] WARNING: ⛔ Skipping row 776: No text to classify.
+[2025-06-03 15:36:03] WARNING: ⛔ Skipping row 806: No text to classify.
+[2025-06-03 15:36:07] INFO: 🎯 Classification complete for 836 rows.
+[2025-06-03 15:36:07] INFO: ⚠️ Skipped 26 rows due to missing classification text.
+[2025-06-03 15:36:07] INFO: 🧩 Merging predictions into original dataframe...
+[2025-06-03 15:36:07] INFO: 🧹 Filtering invalid and neutral rows... Total before: 1800
+[2025-06-03 15:36:07] INFO: ✅ Remaining rows after filtering: 1748 (Removed: 52)
+[2025-06-03 15:36:07] INFO: 📈 Label distribution:
+[2025-06-03 15:36:07] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-03 15:36:07] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-03 15:36:07] INFO: 📦 Saved 10 negative (misclassified) samples to negative_samples.json
+[2025-06-03 15:36:07] INFO: 📦 Saved 10 positive (correctly classified) samples to positive_samples.json
+[2025-06-03 15:36:07] INFO: 🎯 Final F1 Score (label='increase'): 0.6151
+[2025-06-03 15:36:07] INFO: ✅ Evaluation Pipeline Complete.
+[2025-06-03 15:45:57] INFO: Starting Evaluation Pipeline...
+[2025-06-03 15:45:57] INFO: Loading evaluation data from predictions_checkpoint_1800.json...
+[2025-06-03 15:45:57] INFO: Loaded 1800 rows.
+[2025-06-03 15:45:57] INFO: Starting JSON repair process...
+[2025-06-03 15:45:57] INFO: Filtering complete. Total rows needing repair: 843
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=1510, year=1976
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=1608, year=1973
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=2062, year=1972
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=2089, year=1978
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=2110, year=1973
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=2328, year=1977
+[2025-06-03 15:45:57] WARNING: No JSON found for company_id=2401, year=1976
+[2025-06-03 15:45:57] INFO: Total JSONs fixed: 836
+[2025-06-03 15:45:57] INFO: Starting Zero-Shot Classification...
+[2025-06-03 15:46:07] WARNING: Skipping row 31: No text to classify.
+[2025-06-03 15:46:12] WARNING: Skipping row 61: No text to classify.
+[2025-06-03 15:46:20] WARNING: Skipping row 127: No text to classify.
+[2025-06-03 15:46:21] WARNING: Skipping row 137: No text to classify.
+[2025-06-03 15:46:24] WARNING: Skipping row 157: No text to classify.
+[2025-06-03 15:46:30] WARNING: Skipping row 223: No text to classify.
+[2025-06-03 15:46:35] WARNING: Skipping row 267: No text to classify.
+[2025-06-03 15:46:41] WARNING: Skipping row 325: No text to classify.
+[2025-06-03 15:46:48] WARNING: Skipping row 388: No text to classify.
+[2025-06-03 15:46:51] WARNING: Skipping row 421: No text to classify.
+[2025-06-03 15:46:58] WARNING: Skipping row 484: No text to classify.
+[2025-06-03 15:46:59] WARNING: Skipping row 498: No text to classify.
+[2025-06-03 15:46:59] WARNING: Skipping row 500: No text to classify.
+[2025-06-03 15:47:02] WARNING: Skipping row 540: No text to classify.
+[2025-06-03 15:47:04] WARNING: Skipping row 564: No text to classify.
+[2025-06-03 15:47:06] WARNING: Skipping row 578: No text to classify.
+[2025-06-03 15:47:06] WARNING: Skipping row 583: No text to classify.
+[2025-06-03 15:47:07] WARNING: Skipping row 600: No text to classify.
+[2025-06-03 15:47:11] WARNING: Skipping row 636: No text to classify.
+[2025-06-03 15:47:15] WARNING: Skipping row 679: No text to classify.
+[2025-06-03 15:47:19] WARNING: Skipping row 710: No text to classify.
+[2025-06-03 15:47:19] WARNING: Skipping row 711: No text to classify.
+[2025-06-03 15:47:20] WARNING: Skipping row 720: No text to classify.
+[2025-06-03 15:47:22] WARNING: Skipping row 744: No text to classify.
+[2025-06-03 15:47:25] WARNING: Skipping row 776: No text to classify.
+[2025-06-03 15:47:28] WARNING: Skipping row 806: No text to classify.
+[2025-06-03 15:47:31] INFO: Classification complete for 836 rows.
+[2025-06-03 15:47:31] INFO: Skipped 26 rows due to missing classification text.
+[2025-06-03 15:47:32] INFO: Merging predictions into original dataframe...
+[2025-06-03 15:47:32] INFO: Filtering invalid and neutral rows... Total before: 1800
+[2025-06-03 15:47:32] INFO: Remaining rows after filtering: 1748 (Removed: 52)
+[2025-06-03 15:47:32] INFO: Label distribution:
+[2025-06-03 15:47:32] INFO: Actual Labels:
+actual_label
+increase    1172
+decrease     576
+Name: count, dtype: int64
+[2025-06-03 15:47:32] INFO: Predicted Directions:
+predicted_direction
+increase    1026
+decrease     722
+Name: count, dtype: int64
+[2025-06-03 15:47:32] INFO: Saved 10 negative (misclassified) samples to positive_samples.json
+[2025-06-03 15:47:32] INFO: Final F1 Score (label='increase'): 0.6151
+[2025-06-03 15:47:32] INFO: Evaluation Pipeline Complete.
