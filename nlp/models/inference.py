@@ -9,8 +9,8 @@ import os
 # --- Configuration Loading ---
 CONFIG_PATH = "config/model_config.yaml"
 PROMPTS_PATH = "config/prompts.yaml"
-DATA_PATH = "nlp/data/process_data.json" # Adjusted path
-OUTPUT_DIR = "nlp/output"
+DATA_PATH = "data/process_data.json"
+OUTPUT_DIR = "outputs"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "predictions.json")
 
 # Load configurations globally
@@ -152,7 +152,7 @@ def process_financial_data():
                     # print(f"Generated Prompt:\n{prompt[:500]}...") # Optional: print part of the prompt
 
                     response_text = run_inference(prompt)
-                    print(f"Raw Model Response:\n{response_text}") # Optional: print raw response
+                    print(f"Raw Model Response:\n{response_text[:200]}...") # Truncate for readability
 
                     parsed_output = parse_response(response_text)
                     predicted_direction = str(parsed_output.get("direction", "Unknown")).strip().lower()
@@ -177,18 +177,30 @@ def process_financial_data():
                     }
                     all_results.append(result_entry)
                     
-                    # Optional: print immediate result for monitoring
-                    print(f"Company: {company_id}, Year: {year}, Actual: {actual_label}, Predicted: {predicted_direction}, Match: {is_match}")
+                    print(f"Result: {company_id}-{year} | Actual: {actual_label} | Predicted: {predicted_direction} | Match: {is_match}")
 
     # Save results
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
     
-    print(f"\nSaving all results to {OUTPUT_FILE}")
-    with open(OUTPUT_FILE, 'w') as f:
+    timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
+    output_file = os.path.join(OUTPUT_DIR, f"predictions_{timestamp}.json")
+    
+    print(f"\nSaving all results to {output_file}")
+    with open(output_file, 'w') as f:
         json.dump(all_results, f, indent=4)
     
     print(f"Processing complete. {len(all_results)} entries processed and saved.")
+    
+    # Print summary statistics
+    correct_predictions = sum(1 for r in all_results if r['is_match'])
+    accuracy = correct_predictions / len(all_results) if all_results else 0
+    print(f"\nSUMMARY:")
+    print(f"Total predictions: {len(all_results)}")
+    print(f"Correct predictions: {correct_predictions}")
+    print(f"Accuracy: {accuracy:.2%}")
+    
+    return output_file
 
 if __name__ == "__main__":
     process_financial_data()

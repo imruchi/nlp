@@ -1,0 +1,84 @@
+model_config:
+  name: "Qwen/Qwen2-7B-Instruct"
+  device: "cuda"  # Change to "mps" or "cuda" if you have sufficient memory
+  torch_dtype: "float16"  # Use "float16" for GPU
+  max_memory_usage: "16GB"
+
+generation_config:
+  max_new_tokens: 100
+  temperature: 0.1
+  do_sample: false
+  output_attentions: true
+  return_dict_in_generate: true
+
+attention_analysis:
+  layers_to_analyze: [0, 5, 10, 15, 20, 25, 31]  # Sample layers across the model
+  heads_per_layer: 8  # Number of heads to analyze per layer
+  max_tokens_viz: 50  # Maximum tokens to show in visualizations
+  
+financial_vocabulary:
+  revenue_terms: ["sales", "revenue", "income", "turnover"]
+  profit_terms: ["profit", "earnings", "eps", "net income", "operating income"]
+  balance_sheet_terms: ["asset", "liability", "equity", "balance sheet", "cash", "debt"]
+  change_terms: ["increase", "decrease", "growth", "decline", "up", "down"]
+  financial_ops: ["cost", "expense", "margin", "ratio", "percentage"]
+  time_terms: ["current", "long-term", "short-term", "year", "quarter", "annual"]
+
+visualization_config:
+  color_schemes:
+    attention_heatmap: "Blues"
+    financial_flow: "Reds"
+    comparison: "RdYlBu"
+  figure_sizes:
+    heatmap: [12, 10]
+    summary: [15, 12]
+    comparison: [12, 6]
+  font_sizes:
+    title: 14
+    labels: 12
+    ticks: 10
+
+intervention_experiments:
+  ablation_values: [0.0, 0.1, 0.5]  # Values to test for attention ablation
+  intervention_positions: [-1, -2, -3]  # Positions to intervene at (negative = from end)
+  
+analysis_focus:
+  key_financial_metrics:
+    - "financial_to_financial"
+    - "output_to_financial" 
+    - "financial_to_non_financial"
+  
+  prediction_analysis:
+    target_tokens: ["increase", "decrease", "Increase", "Decrease"]
+    context_window: 20  # Tokens around prediction to analyze
+  
+  head_specialization:
+    patterns_to_detect:
+      - "self_attention"     # High diagonal attention
+      - "causal_attention"   # Attention to previous tokens
+      - "beginning_focus"    # Attention to start of sequence
+      - "distributed"        # High entropy attention
+      - "financial_focus"    # High attention to financial terms
+
+comparative_analysis:
+  sample_sizes:
+    train: 5      # Samples per category for training analysis
+    test: 3       # Samples per category for testing
+  
+  statistical_tests:
+    significance_level: 0.05
+    multiple_correction: "bonferroni"
+
+output_config:
+  save_attention_matrices: true
+  save_visualizations: true
+  output_directory: "results/interpretability"
+  file_formats: ["png", "pdf", "json"]
+
+experimental_hypotheses:
+  # Hypotheses to test during analysis
+  - "Later layers show more financial-specific attention patterns"
+  - "Certain heads specialize in processing numerical relationships"
+  - "Attention to financial terms correlates with prediction accuracy"
+  - "Different attention patterns for increase vs decrease predictions"
+  - "Model relies more on recent financial data than historical data" 
