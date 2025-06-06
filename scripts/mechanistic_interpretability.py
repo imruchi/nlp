@@ -115,66 +115,160 @@ class FinancialAttentionAnalyzer:
         for i, sample in enumerate(sample_data):
             print(f"Processing sample {i+1}/{len(sample_data)}: {sample['company_id']}-{sample['year']}")
             
-            # Build prompt from sample data
-            prompt = self._build_prompt_from_sample(sample)
-            
-            # Tokenize
-            inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, 
-                                  max_length=2048).to(self.device)
-            
-            print("=" * 80)
-            print(f"FULL INPUT PROMPT:")
-            print("=" * 80)
-            print(prompt)
-            print("=" * 80)
-            
-            # Generate with attention capture
-            with torch.no_grad():
-                outputs = self.model.generate(
-                    input_ids=inputs["input_ids"],
-                    attention_mask=inputs.get("attention_mask"),
-                    max_new_tokens=self.config['generation_config']['max_new_tokens'],
-                    temperature=self.config['generation_config']['temperature'],
-                    do_sample=self.config['generation_config']['do_sample'],
-                    output_attentions=True,
-                    return_dict_in_generate=True
-                )
-            
-            # Decode the full generated sequence
-            full_generated_text = self.tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
-            
-            # Extract only the newly generated part (response)
-            input_length = inputs["input_ids"].shape[1]
-            generated_tokens = outputs.sequences[0][input_length:]
-            generated_response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
-            
-            print(f"FULL GENERATED TEXT:")
-            print("=" * 80)
-            print(full_generated_text)
-            print("=" * 80)
-            print(f"GENERATED RESPONSE ONLY: '{generated_response}'")
-            print(f"EXPECTED LABEL: {sample.get('actual_label', 'Unknown')}")
-            print(f"PREDICTED LABEL: {sample.get('predicted_direction', 'Unknown')}")
-            print(f"IS CORRECT: {sample.get('is_match', 'Unknown')}")
-            print("=" * 80)
-            
-            # Extract attention matrices specifically when prediction is made
-            attention_data = self._extract_attention_at_prediction(
-                outputs.attentions, outputs.sequences, inputs["input_ids"], sample, 
-                full_generated_text, generated_response, prompt
-            )
-            
-            # Categorize by correctness
-            if sample['is_match']:
-                results['correct_predictions'].append(attention_data)
-            else:
-                results['incorrect_predictions'].append(attention_data)
+            try:
+                # Build prompt from sample data
+                prompt = self._build_prompt_from_sample(sample)
                 
-            # Store individual patterns
-            sample_id = f"{sample['company_id']}_{sample['year']}"
-            results['attention_patterns'][sample_id] = attention_data
-            
+                # Tokenize with validation
+                inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, 
+                                      max_length=2048).to(self.device)
+                
+                # Validate input tensor
+                if torch.isnan(inputs["input_ids"]).any() or torch.isinf(inputs["input_ids"]).any():
+                    print(f"Warning: Invalid input tokens detected for sample {sample['company_id']}-{sample['year']}, skipping...")
+                    continue
+                
+                # Check for out-of-vocabulary tokens
+                vocab_size = self.tokenizer.vocab_size
+                if inputs["input_ids"].max() >= vocab_size:
+                    print(f"Warning: Out-of-vocabulary token detected for sample {sample['company_id']}-{sample['year']}, skipping...")
+                    continue
+                
+                print("=" * 80)
+                print(f"FULL INPUT PROMPT:")
+                print("=" * 80)
+                print(prompt)
+                print("=" * 80)
+                
+                # Generate with attention capture using robust parameters
+                attention_data = self._generate_with_robust_parameters(inputs, sample, prompt)
+                
+                if attention_data is None:
+                    print(f"Failed to generate for sample {sample['company_id']}-{sample['year']}, skipping...")
+                    continue
+                
+                # Categorize by correctness
+                if sample['is_match']:
+                    results['correct_predictions'].append(attention_data)
+                else:
+                    results['incorrect_predictions'].append(attention_data)
+                    
+                # Store individual patterns
+                sample_id = f"{sample['company_id']}_{sample['year']}"
+                results['attention_patterns'][sample_id] = attention_data
+                
+            except Exception as e:
+                print(f"Error processing sample {sample['company_id']}-{sample['year']}: {str(e)}")
+                print("Continuing with next sample...")
+                continue
+                
         return results
+    
+    def _generate_with_robust_parameters(self, inputs: torch.Tensor, sample: Dict, prompt: str) -> Dict:
+        """Generate with robust error handling and fallback parameters."""
+        
+        # Primary generation parameters from config
+        primary_params = {
+            'input_ids': inputs["input_ids"],
+            'attention_mask': inputs.get("attention_mask"),
+            'max_new_tokens': self.config['generation_config']['max_new_tokens'],
+            'temperature': self.config['generation_config']['temperature'],
+            'do_sample': self.config['generation_config']['do_sample'],
+            'output_attentions': True,
+            'return_dict_in_generate': True,
+            'pad_token_id': self.tokenizer.eos_token_id,  # Ensure padding token is set
+        }
+        
+        # Fallback parameters for numerical stability
+        fallback_params = [
+            {**primary_params, 'temperature': 0.7, 'do_sample': True},  # More stable temperature
+            {**primary_params, 'temperature': 1.0, 'do_sample': True},  # Default temperature
+            {**primary_params, 'do_sample': False, 'temperature': None},  # Greedy decoding
+        ]
+        
+        # Try primary parameters first, then fallbacks
+        all_params = [primary_params] + fallback_params
+        
+        for attempt, params in enumerate(all_params):
+            try:
+                print(f"Generation attempt {attempt + 1} with temp={params.get('temperature', 'None')}, do_sample={params.get('do_sample')}")
+                
+                with torch.no_grad():
+                    # Clear any existing CUDA cache
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                    
+                    outputs = self.model.generate(**params)
+                
+                # Validate outputs
+                if hasattr(outputs, 'sequences') and outputs.sequences is not None:
+                    if torch.isnan(outputs.sequences).any() or torch.isinf(outputs.sequences).any():
+                        print(f"Warning: Invalid output tokens detected on attempt {attempt + 1}")
+                        if attempt < len(all_params) - 1:
+                            continue
+                        else:
+                            return None
+                    
+                    # Success - process the outputs
+                    return self._process_generation_outputs(outputs, inputs, sample, prompt)
+                else:
+                    print(f"Warning: No sequences generated on attempt {attempt + 1}")
+                    if attempt < len(all_params) - 1:
+                        continue
+                    else:
+                        return None
+                        
+            except RuntimeError as e:
+                if "CUDA" in str(e) or "probability" in str(e) or "assert" in str(e):
+                    print(f"CUDA/numerical error on attempt {attempt + 1}: {str(e)}")
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                    if attempt < len(all_params) - 1:
+                        print("Trying fallback parameters...")
+                        continue
+                    else:
+                        print("All generation attempts failed")
+                        return None
+                else:
+                    # Re-raise non-CUDA errors
+                    raise e
+            except Exception as e:
+                print(f"Unexpected error on attempt {attempt + 1}: {str(e)}")
+                if attempt < len(all_params) - 1:
+                    continue
+                else:
+                    return None
+        
+        return None
+    
+    def _process_generation_outputs(self, outputs, inputs: torch.Tensor, sample: Dict, prompt: str) -> Dict:
+        """Process the generation outputs to extract attention data."""
+        
+        # Decode the full generated sequence
+        full_generated_text = self.tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
+        
+        # Extract only the newly generated part (response)
+        input_length = inputs["input_ids"].shape[1]
+        generated_tokens = outputs.sequences[0][input_length:]
+        generated_response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        
+        print(f"FULL GENERATED TEXT:")
+        print("=" * 80)
+        print(full_generated_text)
+        print("=" * 80)
+        print(f"GENERATED RESPONSE ONLY: '{generated_response}'")
+        print(f"EXPECTED LABEL: {sample.get('actual_label', 'Unknown')}")
+        print(f"PREDICTED LABEL: {sample.get('predicted_direction', 'Unknown')}")
+        print(f"IS CORRECT: {sample.get('is_match', 'Unknown')}")
+        print("=" * 80)
+        
+        # Extract attention matrices specifically when prediction is made
+        attention_data = self._extract_attention_at_prediction(
+            outputs.attentions, outputs.sequences, inputs["input_ids"], sample, 
+            full_generated_text, generated_response, prompt
+        )
+        
+        return attention_data
     
     def _build_prompt_from_sample(self, sample: Dict) -> str:
         """Build prompt from sample data."""
