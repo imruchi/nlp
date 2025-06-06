@@ -134,9 +134,9 @@ class FinancialAttentionAnalyzer:
                     return_dict_in_generate=True
                 )
             
-            # Extract attention matrices
-            attention_data = self._extract_attention_matrices(
-                outputs.attentions, inputs["input_ids"], sample
+            # Extract attention matrices specifically when prediction is made
+            attention_data = self._extract_attention_at_prediction(
+                outputs.attentions, outputs.sequences, inputs["input_ids"], sample
             )
             
             # Categorize by correctness
@@ -168,36 +168,55 @@ class FinancialAttentionAnalyzer:
         # Fallback: use a basic template
         return f"Based on financial data, assess whether EPS will increase or decrease in the next year. Return your prediction as Increase or Decrease."
     
-    def _extract_attention_matrices(self, attentions: Tuple, input_ids: torch.Tensor, 
-                                  sample: Dict) -> Dict:
-        """Extract and process attention matrices from model output."""
+    def _extract_attention_at_prediction(self, attentions: Tuple, sequences: torch.Tensor, 
+                                       input_ids: torch.Tensor, sample: Dict) -> Dict:
+        """Extract attention matrices specifically when prediction tokens are generated."""
         
-        # Convert input_ids to tokens
-        tokens = self.tokenizer.convert_ids_to_tokens(input_ids[0])
+        # Convert input_ids to tokens (original prompt)
+        original_tokens = self.tokenizer.convert_ids_to_tokens(input_ids[0])
+        
+        # Convert full sequence to tokens (prompt + generated)
+        full_sequence = sequences[0]  # Remove batch dimension
+        all_tokens = self.tokenizer.convert_ids_to_tokens(full_sequence)
+        
+        # Find where generation starts (after the input)
+        input_length = input_ids.shape[1]
+        generated_tokens = all_tokens[input_length:]
         
         attention_data = {
             'sample_id': f"{sample['company_id']}_{sample['year']}",
             'is_correct': sample['is_match'],
             'actual_label': sample['actual_label'],
             'predicted_label': sample['predicted_direction'],
-            'tokens': tokens,
-            'token_count': len(tokens),
-            'layers': {}
+            'tokens': all_tokens,
+            'original_tokens': original_tokens,
+            'generated_tokens': generated_tokens,
+            'token_count': len(all_tokens),
+            'input_length': input_length,
+            'layers': {},
+            'prediction_step_info': {}
         }
         
-        # Handle attention structure from model.generate()
-        # attentions is a tuple where each element is a tuple of layer attentions for that generation step
-        # We want to use the last generation step's attentions (most complete context)
-        if len(attentions) > 0:
-            # Use the last generation step which has the most complete context
-            last_step_attentions = attentions[-1]
+        # Find the generation step where prediction tokens appear
+        prediction_step = self._find_prediction_step(generated_tokens, attentions)
+        
+        if prediction_step is not None:
+            print(f"Found prediction at generation step {prediction_step}")
+            attention_data['prediction_step_info'] = {
+                'step': prediction_step,
+                'token': generated_tokens[prediction_step] if prediction_step < len(generated_tokens) else 'unknown',
+                'total_steps': len(attentions)
+            }
+            
+            # Use attention from the prediction step
+            step_attentions = attentions[prediction_step]
             
             # Process each layer's attention
             layers_to_analyze = self.config['attention_analysis']['layers_to_analyze']
             
-            for layer_idx in range(len(last_step_attentions)):
+            for layer_idx in range(len(step_attentions)):
                 if layer_idx in layers_to_analyze:
-                    layer_attention = last_step_attentions[layer_idx]
+                    layer_attention = step_attentions[layer_idx]
                     
                     # Remove batch dimension if present
                     if layer_attention.dim() == 4:  # [batch, heads, seq, seq]
@@ -210,14 +229,75 @@ class FinancialAttentionAnalyzer:
                     
                     attention_data['layers'][layer_idx] = {
                         'attention_matrix': layer_attention.cpu().numpy(),
-                        'head_patterns': self._analyze_head_patterns(layer_attention, tokens),
-                        'financial_attention': self._compute_financial_attention(layer_attention, tokens),
-                        'prediction_attention': self._compute_prediction_attention(layer_attention, tokens)
+                        'head_patterns': self._analyze_head_patterns(layer_attention, all_tokens),
+                        'financial_attention': self._compute_financial_attention(layer_attention, all_tokens),
+                        'prediction_attention': self._compute_prediction_attention(layer_attention, all_tokens)
                     }
         else:
-            print("Warning: No attention data found in model output")
+            # Fallback: use last step if no prediction token found
+            print("Warning: No prediction token found, using last generation step")
+            attention_data['prediction_step_info'] = {
+                'step': len(attentions) - 1,
+                'token': 'last_step_fallback',
+                'total_steps': len(attentions)
+            }
+            
+            if len(attentions) > 0:
+                last_step_attentions = attentions[-1]
+                layers_to_analyze = self.config['attention_analysis']['layers_to_analyze']
+                
+                for layer_idx in range(len(last_step_attentions)):
+                    if layer_idx in layers_to_analyze:
+                        layer_attention = last_step_attentions[layer_idx]
+                        
+                        if layer_attention.dim() == 4:
+                            layer_attention = layer_attention[0]
+                        
+                        if layer_attention.dim() != 3:
+                            print(f"Warning: Unexpected attention tensor shape for layer {layer_idx}: {layer_attention.shape}")
+                            continue
+                        
+                        attention_data['layers'][layer_idx] = {
+                            'attention_matrix': layer_attention.cpu().numpy(),
+                            'head_patterns': self._analyze_head_patterns(layer_attention, all_tokens),
+                            'financial_attention': self._compute_financial_attention(layer_attention, all_tokens),
+                            'prediction_attention': self._compute_prediction_attention(layer_attention, all_tokens)
+                        }
+            else:
+                print("Warning: No attention data found in model output")
         
         return attention_data
+    
+    def _find_prediction_step(self, generated_tokens: List[str], attentions: Tuple) -> int:
+        """Find the generation step where prediction tokens (increase/decrease) appear."""
+        
+        # Prediction keywords to look for
+        prediction_keywords = ['increase', 'decrease', 'Increase', 'Decrease', 
+                             'inc', 'dec', 'up', 'down', 'rise', 'fall']
+        
+        # Look through generated tokens to find prediction keywords
+        for step, token in enumerate(generated_tokens):
+            token_lower = token.lower().strip()
+            
+            # Check if this token contains a prediction keyword
+            for keyword in prediction_keywords:
+                if keyword.lower() in token_lower:
+                    # Make sure we have attention data for this step
+                    if step < len(attentions):
+                        print(f"Found prediction token '{token}' at step {step}")
+                        return step
+        
+        # Alternative: look for tokens that might be part of prediction words
+        for step, token in enumerate(generated_tokens):
+            token_clean = token.lower().strip().replace('▁', '').replace('Ġ', '')
+            
+            # Check partial matches for tokenized words
+            if any(keyword in token_clean for keyword in ['increa', 'decrea', 'rise', 'fall']):
+                if step < len(attentions):
+                    print(f"Found potential prediction token '{token}' at step {step}")
+                    return step
+        
+        return None
     
     def _analyze_head_patterns(self, layer_attention: torch.Tensor, tokens: List[str]) -> Dict:
         """Analyze attention patterns for each head in a layer."""

@@ -36,9 +36,10 @@ def test_attention_extraction():
     
     try:
         # Run step 2 with a very small sample
-        print("Running Step 2: Extract attention (1 sample only)...")
+        print("Running Step 2: Extract attention (2 samples only)...")
         analyzer.step2_extract_attention(predictions_file, max_samples=2, save_intermediate=True)
         print("✅ Success! Attention extraction completed without dimension errors.")
+        print("🎯 Now capturing attention at the moment predictions are made!")
         return True
         
     except Exception as e:
