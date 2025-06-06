@@ -122,6 +122,12 @@ class FinancialAttentionAnalyzer:
             inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, 
                                   max_length=2048).to(self.device)
             
+            print("=" * 80)
+            print(f"FULL INPUT PROMPT:")
+            print("=" * 80)
+            print(prompt)
+            print("=" * 80)
+            
             # Generate with attention capture
             with torch.no_grad():
                 outputs = self.model.generate(
@@ -134,9 +140,28 @@ class FinancialAttentionAnalyzer:
                     return_dict_in_generate=True
                 )
             
+            # Decode the full generated sequence
+            full_generated_text = self.tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
+            
+            # Extract only the newly generated part (response)
+            input_length = inputs["input_ids"].shape[1]
+            generated_tokens = outputs.sequences[0][input_length:]
+            generated_response = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+            
+            print(f"FULL GENERATED TEXT:")
+            print("=" * 80)
+            print(full_generated_text)
+            print("=" * 80)
+            print(f"GENERATED RESPONSE ONLY: '{generated_response}'")
+            print(f"EXPECTED LABEL: {sample.get('actual_label', 'Unknown')}")
+            print(f"PREDICTED LABEL: {sample.get('predicted_direction', 'Unknown')}")
+            print(f"IS CORRECT: {sample.get('is_match', 'Unknown')}")
+            print("=" * 80)
+            
             # Extract attention matrices specifically when prediction is made
             attention_data = self._extract_attention_at_prediction(
-                outputs.attentions, outputs.sequences, inputs["input_ids"], sample
+                outputs.attentions, outputs.sequences, inputs["input_ids"], sample, 
+                full_generated_text, generated_response, prompt
             )
             
             # Categorize by correctness
@@ -169,7 +194,9 @@ class FinancialAttentionAnalyzer:
         return f"Based on financial data, assess whether EPS will increase or decrease in the next year. Return your prediction as Increase or Decrease."
     
     def _extract_attention_at_prediction(self, attentions: Tuple, sequences: torch.Tensor, 
-                                       input_ids: torch.Tensor, sample: Dict) -> Dict:
+                                       input_ids: torch.Tensor, sample: Dict,
+                                       full_generated_text: str = "", generated_response: str = "",
+                                       original_prompt: str = "") -> Dict:
         """Extract attention matrices specifically when prediction tokens are generated."""
         
         # Convert input_ids to tokens (original prompt)
@@ -188,6 +215,9 @@ class FinancialAttentionAnalyzer:
             'is_correct': sample['is_match'],
             'actual_label': sample['actual_label'],
             'predicted_label': sample['predicted_direction'],
+            'original_prompt': original_prompt,
+            'full_generated_text': full_generated_text,
+            'generated_response': generated_response,
             'tokens': all_tokens,
             'original_tokens': original_tokens,
             'generated_tokens': generated_tokens,
@@ -1262,6 +1292,9 @@ class FinancialAttentionAnalyzer:
         # Save detailed token analysis
         self._save_detailed_token_analysis(attention_results)
         
+        # Save generated text outputs
+        self._save_generated_outputs(attention_results)
+        
         print(f"Analysis results saved to {self.output_dir}")
     
     def _make_serializable(self, data):
@@ -1448,6 +1481,146 @@ class FinancialAttentionAnalyzer:
         with open(f'{self.output_dir}/top_tokens_summary.txt', 'w') as f:
             f.write('\n'.join(summary))
     
+    def _save_generated_outputs(self, attention_results: Dict):
+        """Save all generated text outputs for easy review."""
+        
+        outputs_summary = []
+        outputs_summary.append("GENERATED TEXT OUTPUTS ANALYSIS")
+        outputs_summary.append("=" * 40)
+        outputs_summary.append(f"Analysis Date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        outputs_summary.append("")
+        
+        # Process correct predictions
+        outputs_summary.append("CORRECT PREDICTIONS:")
+        outputs_summary.append("-" * 20)
+        
+        for i, sample in enumerate(attention_results['correct_predictions'], 1):
+            outputs_summary.append(f"\n{i}. Sample: {sample['sample_id']}")
+            outputs_summary.append(f"   Expected: {sample['actual_label']}")
+            outputs_summary.append(f"   Generated: \"{sample['generated_response']}\"")
+            outputs_summary.append(f"   Status: ✓ CORRECT")
+        
+        # Process incorrect predictions
+        outputs_summary.append("\n\nINCORRECT PREDICTIONS:")
+        outputs_summary.append("-" * 22)
+        
+        for i, sample in enumerate(attention_results['incorrect_predictions'], 1):
+            outputs_summary.append(f"\n{i}. Sample: {sample['sample_id']}")
+            outputs_summary.append(f"   Expected: {sample['actual_label']}")
+            outputs_summary.append(f"   Generated: \"{sample['generated_response']}\"")
+            outputs_summary.append(f"   Status: ✗ INCORRECT")
+        
+        # Add statistics
+        correct_count = len(attention_results['correct_predictions'])
+        incorrect_count = len(attention_results['incorrect_predictions'])
+        total_count = correct_count + incorrect_count
+        
+        outputs_summary.append(f"\n\nSTATISTICS:")
+        outputs_summary.append("-" * 11)
+        outputs_summary.append(f"Total samples: {total_count}")
+        outputs_summary.append(f"Correct: {correct_count} ({correct_count/total_count*100:.1f}%)")
+        outputs_summary.append(f"Incorrect: {incorrect_count} ({incorrect_count/total_count*100:.1f}%)")
+        
+        # Save to file
+        with open(f'{self.output_dir}/generated_outputs_summary.txt', 'w') as f:
+            f.write('\n'.join(outputs_summary))
+        
+        # Also save detailed outputs as JSON for programmatic access
+        detailed_outputs = {
+            'correct_predictions': [],
+            'incorrect_predictions': [],
+            'statistics': {
+                'total': total_count,
+                'correct': correct_count,
+                'incorrect': incorrect_count,
+                'accuracy': correct_count / total_count if total_count > 0 else 0
+            }
+        }
+        
+        for sample in attention_results['correct_predictions']:
+            detailed_outputs['correct_predictions'].append({
+                'sample_id': sample['sample_id'],
+                'expected_label': sample['actual_label'],
+                'predicted_label': sample.get('predicted_label', 'Unknown'),
+                'generated_response': sample['generated_response'],
+                'full_generated_text': sample['full_generated_text'],
+                'input_prompt': sample.get('original_prompt', 'Prompt not available'),
+                'tokens_count': sample.get('token_count', 0),
+                'is_correct': True
+            })
+        
+        for sample in attention_results['incorrect_predictions']:
+            detailed_outputs['incorrect_predictions'].append({
+                'sample_id': sample['sample_id'],
+                'expected_label': sample['actual_label'],
+                'predicted_label': sample.get('predicted_label', 'Unknown'),
+                'generated_response': sample['generated_response'],
+                'full_generated_text': sample['full_generated_text'],
+                'input_prompt': sample.get('original_prompt', 'Prompt not available'),
+                'tokens_count': sample.get('token_count', 0),
+                'is_correct': False
+            })
+        
+        with open(f'{self.output_dir}/generated_outputs_detailed.json', 'w') as f:
+            json.dump(detailed_outputs, f, indent=2)
+        
+        # Save comprehensive full text outputs
+        self._save_comprehensive_outputs(attention_results)
+    
+    def _save_comprehensive_outputs(self, attention_results: Dict):
+        """Save comprehensive full text outputs with complete prompts and responses."""
+        
+        comprehensive_output = []
+        comprehensive_output.append("COMPREHENSIVE FULL TEXT OUTPUTS")
+        comprehensive_output.append("=" * 50)
+        comprehensive_output.append(f"Analysis Date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        comprehensive_output.append("")
+        
+        # Process all samples
+        all_samples = attention_results['correct_predictions'] + attention_results['incorrect_predictions']
+        
+        for i, sample in enumerate(all_samples, 1):
+            status = "✓ CORRECT" if sample['is_correct'] else "✗ INCORRECT"
+            
+            comprehensive_output.append(f"\n{'='*80}")
+            comprehensive_output.append(f"SAMPLE {i}: {sample['sample_id']} - {status}")
+            comprehensive_output.append(f"{'='*80}")
+            
+            comprehensive_output.append(f"\nEXPECTED LABEL: {sample['actual_label']}")
+            comprehensive_output.append(f"PREDICTED LABEL: {sample.get('predicted_label', 'Unknown')}")
+            comprehensive_output.append(f"IS CORRECT: {sample['is_correct']}")
+            
+            comprehensive_output.append(f"\n{'-'*40} INPUT PROMPT {'-'*40}")
+            comprehensive_output.append(sample.get('original_prompt', 'Prompt not available'))
+            
+            comprehensive_output.append(f"\n{'-'*35} FULL GENERATED TEXT {'-'*35}")
+            comprehensive_output.append(sample['full_generated_text'])
+            
+            comprehensive_output.append(f"\n{'-'*35} GENERATED RESPONSE ONLY {'-'*30}")
+            comprehensive_output.append(f"'{sample['generated_response']}'")
+            
+            comprehensive_output.append(f"\n{'-'*35} TOKEN STATISTICS {'-'*35}")
+            comprehensive_output.append(f"Total tokens: {sample.get('token_count', 0)}")
+            comprehensive_output.append(f"Input length: {sample.get('input_length', 0)}")
+            comprehensive_output.append(f"Generated tokens: {len(sample.get('generated_tokens', []))}")
+            
+            comprehensive_output.append("")
+        
+        # Save comprehensive output
+        with open(f'{self.output_dir}/comprehensive_full_outputs.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(comprehensive_output))
+    
+    def _reconstruct_prompt_from_tokens(self, tokens: List[str]) -> str:
+        """Reconstruct the original prompt from tokenized input."""
+        if not tokens:
+            return "Prompt not available"
+        try:
+            # Convert tokens back to text
+            return self.tokenizer.convert_tokens_to_string(tokens)
+        except Exception as e:
+            print(f"Warning: Could not reconstruct prompt from tokens: {e}")
+            return "Prompt reconstruction failed"
+    
     def _generate_summary_report(self, attention_results: Dict, comparison_results: Dict):
         """Generate human-readable summary report."""
         
@@ -1530,6 +1703,9 @@ class FinancialAttentionAnalyzer:
         report.append("• comparison_analysis_results.json - Statistical comparisons")
         report.append("• detailed_token_analysis.json - Token-level attention scores")
         report.append("• top_tokens_summary.txt - Most attended tokens summary")
+        report.append("• generated_outputs_summary.txt - All model predictions and expected labels")
+        report.append("• generated_outputs_detailed.json - Detailed prediction outputs in JSON format")
+        report.append("• comprehensive_full_outputs.txt - Complete prompts and full generated text for all samples")
         report.append("• visualizations/attention_heatmaps.png - Financial data region heatmaps")
         report.append("• visualizations/financial_attention_flow.png - Attention flow analysis")
         report.append("• visualizations/attention_by_input_region.png - Regional attention distribution")
