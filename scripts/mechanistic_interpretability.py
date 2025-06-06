@@ -185,19 +185,37 @@ class FinancialAttentionAnalyzer:
             'layers': {}
         }
         
-        # Process each layer's attention
-        layers_to_analyze = self.config['attention_analysis']['layers_to_analyze']
-        
-        for layer_idx in range(len(attentions)):
-            if layer_idx in layers_to_analyze:
-                layer_attention = attentions[layer_idx][0]  # Remove batch dimension
-                
-                attention_data['layers'][layer_idx] = {
-                    'attention_matrix': layer_attention.cpu().numpy(),
-                    'head_patterns': self._analyze_head_patterns(layer_attention, tokens),
-                    'financial_attention': self._compute_financial_attention(layer_attention, tokens),
-                    'prediction_attention': self._compute_prediction_attention(layer_attention, tokens)
-                }
+        # Handle attention structure from model.generate()
+        # attentions is a tuple where each element is a tuple of layer attentions for that generation step
+        # We want to use the last generation step's attentions (most complete context)
+        if len(attentions) > 0:
+            # Use the last generation step which has the most complete context
+            last_step_attentions = attentions[-1]
+            
+            # Process each layer's attention
+            layers_to_analyze = self.config['attention_analysis']['layers_to_analyze']
+            
+            for layer_idx in range(len(last_step_attentions)):
+                if layer_idx in layers_to_analyze:
+                    layer_attention = last_step_attentions[layer_idx]
+                    
+                    # Remove batch dimension if present
+                    if layer_attention.dim() == 4:  # [batch, heads, seq, seq]
+                        layer_attention = layer_attention[0]  # Remove batch dimension
+                    
+                    # Ensure we have the right dimensions: [heads, seq, seq]
+                    if layer_attention.dim() != 3:
+                        print(f"Warning: Unexpected attention tensor shape for layer {layer_idx}: {layer_attention.shape}")
+                        continue
+                    
+                    attention_data['layers'][layer_idx] = {
+                        'attention_matrix': layer_attention.cpu().numpy(),
+                        'head_patterns': self._analyze_head_patterns(layer_attention, tokens),
+                        'financial_attention': self._compute_financial_attention(layer_attention, tokens),
+                        'prediction_attention': self._compute_prediction_attention(layer_attention, tokens)
+                    }
+        else:
+            print("Warning: No attention data found in model output")
         
         return attention_data
     
@@ -224,7 +242,14 @@ class FinancialAttentionAnalyzer:
     
     def _compute_causal_attention(self, attention_matrix: np.ndarray) -> float:
         """Compute attention to previous tokens (causal pattern)."""
+        if attention_matrix.ndim != 2:
+            print(f"Warning: Expected 2D attention matrix, got {attention_matrix.ndim}D with shape {attention_matrix.shape}")
+            return 0.0
+            
         seq_len = attention_matrix.shape[0]
+        if seq_len <= 1:
+            return 0.0
+            
         causal_scores = []
         
         for i in range(1, seq_len):
@@ -236,14 +261,21 @@ class FinancialAttentionAnalyzer:
     
     def _compute_attention_entropy(self, attention_matrix: np.ndarray) -> float:
         """Compute entropy of attention distribution (higher = more distributed)."""
+        if attention_matrix.ndim != 2:
+            print(f"Warning: Expected 2D attention matrix, got {attention_matrix.ndim}D with shape {attention_matrix.shape}")
+            return 0.0
+            
         entropies = []
         for row in attention_matrix:
             # Add small epsilon to avoid log(0)
             row_normalized = row + 1e-10
+            if row_normalized.sum() == 0:
+                entropies.append(0.0)
+                continue
             row_normalized = row_normalized / row_normalized.sum()
             entropy = -np.sum(row_normalized * np.log(row_normalized))
             entropies.append(entropy)
-        return np.mean(entropies)
+        return np.mean(entropies) if entropies else 0.0
     
     def _compute_financial_attention(self, layer_attention: torch.Tensor, tokens: List[str]) -> Dict:
         """Compute attention scores to financial vocabulary terms."""
@@ -262,8 +294,12 @@ class FinancialAttentionAnalyzer:
                 # Average attention to financial terms across all heads
                 for head in range(layer_attention.shape[0]):
                     head_attn = layer_attention[head].cpu().numpy()
-                    financial_attention = np.mean(head_attn[:, financial_positions])
-                    category_scores.append(financial_attention)
+                    
+                    # Check bounds and filter valid positions
+                    valid_positions = [pos for pos in financial_positions if pos < head_attn.shape[1]]
+                    if valid_positions:
+                        financial_attention = np.mean(head_attn[:, valid_positions])
+                        category_scores.append(financial_attention)
                 
                 financial_scores[category] = {
                     'mean_attention': np.mean(category_scores),
@@ -283,9 +319,15 @@ class FinancialAttentionAnalyzer:
     
     def _compute_financial_focus(self, attention_matrix: np.ndarray, tokens: List[str]) -> float:
         """Compute how much this head focuses on financial terms."""
+        if attention_matrix.ndim != 2:
+            print(f"Warning: Expected 2D attention matrix, got {attention_matrix.ndim}D with shape {attention_matrix.shape}")
+            return 0.0
+            
         financial_positions = []
         
         for i, token in enumerate(tokens):
+            if i >= attention_matrix.shape[1]:  # Check bounds
+                break
             for category, vocab_terms in self.financial_vocab.items():
                 if any(term in token.lower() for term in vocab_terms):
                     financial_positions.append(i)
@@ -295,8 +337,12 @@ class FinancialAttentionAnalyzer:
             return 0.0
             
         # Average attention to financial terms
-        financial_attention = np.mean(attention_matrix[:, financial_positions])
-        return financial_attention
+        try:
+            financial_attention = np.mean(attention_matrix[:, financial_positions])
+            return float(financial_attention)
+        except IndexError as e:
+            print(f"Warning: Index error in financial attention computation: {e}")
+            return 0.0
     
     def _compute_prediction_attention(self, layer_attention: torch.Tensor, tokens: List[str]) -> Dict:
         """Compute attention patterns around prediction tokens."""
@@ -313,16 +359,18 @@ class FinancialAttentionAnalyzer:
                     head_attn = layer_attention[head].cpu().numpy()
                     
                     for pos in target_positions:
-                        # Attention TO this prediction token
-                        incoming_attention = np.mean(head_attn[:, pos])
-                        # Attention FROM this prediction token  
-                        outgoing_attention = np.mean(head_attn[pos, :])
-                        
-                        attention_scores.append({
-                            'incoming': incoming_attention,
-                            'outgoing': outgoing_attention,
-                            'position': pos
-                        })
+                        # Check bounds
+                        if pos < head_attn.shape[0] and pos < head_attn.shape[1]:
+                            # Attention TO this prediction token
+                            incoming_attention = np.mean(head_attn[:, pos])
+                            # Attention FROM this prediction token  
+                            outgoing_attention = np.mean(head_attn[pos, :])
+                            
+                            attention_scores.append({
+                                'incoming': float(incoming_attention),
+                                'outgoing': float(outgoing_attention),
+                                'position': pos
+                            })
                 
                 prediction_patterns[target] = attention_scores
         
