@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-from models.inference import parse_description, build_prompt, run_inference, parse_response
+from nlp.nlp.inference import parse_description, build_prompt, run_inference, parse_response
 from itertools import islice
 from sklearn.metrics import f1_score,precision_score, recall_score
 
