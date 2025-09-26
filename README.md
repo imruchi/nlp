@@ -1,9 +1,4 @@
-# NLP Project Proposal
 
-## MSAI-337 Final Project Proposal:  
-**Mechanistic Interpretability for Financial Forecasting with LLMs**  
-
-**Team:** Ruchi B, Joanne Mathew, Narasimha Karthik J
 
 ### What task will you address, and why is it interesting?
 
